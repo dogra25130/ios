@@ -76,13 +76,37 @@ class NCShareNetworking: NSObject {
 
         if metadata.e2eEncrypted, option.shareType == 0 {
             NextcloudKit.shared.getE2EECertificate(user: option.shareWith) { account, certificate, certificateUser, data, error in
-                NCActivityIndicator.shared.stop()
-                if error == .success, let certificate = certificate, let certificateUser = certificateUser {
 
+                if error == .success, let certificate = certificate, let certificateUser = certificateUser {
+                    let certificateSaved = CCUtility.getEndToEndCertificate(account)
+                    if certificateSaved == certificate {
+                        NextcloudKit.shared.createShare(path: filenamePath, shareType: option.shareType, shareWith: option.shareWith, password: option.password, permissions: option.permissions) { (account, share, data, error) in
+                            NCActivityIndicator.shared.stop()
+                            if error == .success, let share = share {
+                                option.idShare = share.idShare
+                                NCManageDatabase.shared.addShare(account: self.metadata.account, home: self.metadata.home, shares: [share])
+                                if option.hasChanges(comparedTo: share) {
+                                    self.updateShare(option: option)
+                                }
+                                /* E2EE */
+
+
+                                /* ---- */
+                            } else {
+                                NCContentPresenter.shared.showError(error: error)
+                            }
+                            self.delegate?.shareCompleted()
+                        }
+                    } else {
+                        NCActivityIndicator.shared.stop()
+                        NCContentPresenter.shared.showError(error: NKError(errorCode:NCGlobal.shared.errorE2EE, errorDescription: "E2E Csr different!"), priority: .max)
+                        self.delegate?.shareCompleted()
+                    }
                 } else {
+                    NCActivityIndicator.shared.stop()
                     NCContentPresenter.shared.showError(error: error)
+                    self.delegate?.shareCompleted()
                 }
-                self.delegate?.shareCompleted()
             }
         } else {
             NextcloudKit.shared.createShare(path: filenamePath, shareType: option.shareType, shareWith: option.shareWith, password: option.password, permissions: option.permissions) { (account, share, data, error) in

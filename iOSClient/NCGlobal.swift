@@ -127,8 +127,9 @@ class NCGlobal: NSObject {
     //
     let e2eeMaxFileSize: UInt64                     = 500000000     // 500 MB
     let e2eePassphraseTest                          = "more over television factory tendency independence international intellectual impress interest sentence pony"
-    @objc let e2eeVersion                           = "1.1"
-    
+    @objc let e2eeVersion11                         = "1.1"
+    @objc let e2eeVersion                           = "2"
+
     // Video
     //
     let maxHTTPCache: Int64                         = 10000000000   // 10 GB
@@ -225,6 +226,7 @@ class NCGlobal: NSObject {
     @objc let errorFileNotSaved: Int                = -99998
     @objc let errorDecodeMetadata: Int              = -99997
     @objc let errorE2EENotEnabled: Int              = -99996
+    @objc let errorE2EE: Int                        = -99995
     @objc let errorOffline: Int                     = -99994
     @objc let errorCharactersForbidden: Int         = -99993
     @objc let errorCreationFile: Int                = -99992
