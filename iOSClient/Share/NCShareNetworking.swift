@@ -71,21 +71,33 @@ class NCShareNetworking: NSObject {
         // Library update needed:
         // https://github.com/nextcloud/ios-communication-library/pull/104
 
-        NCActivityIndicator.shared.start(backgroundView: view)
         let filenamePath = CCUtility.returnFileNamePath(fromFileName: metadata.fileName, serverUrl: metadata.serverUrl, urlBase: metadata.urlBase, userId: metadata.userId, account: metadata.account)!
+        NCActivityIndicator.shared.start(backgroundView: view)
 
-        NextcloudKit.shared.createShare(path: filenamePath, shareType: option.shareType, shareWith: option.shareWith, password: option.password, permissions: option.permissions) { (account, share, data, error) in
-            NCActivityIndicator.shared.stop()
-            if error == .success, let share = share {
-                option.idShare = share.idShare
-                NCManageDatabase.shared.addShare(account: self.metadata.account, home: self.metadata.home, shares: [share])
-                if option.hasChanges(comparedTo: share) {
-                    self.updateShare(option: option)
+        if metadata.e2eEncrypted, option.shareType == 0 {
+            NextcloudKit.shared.getE2EECertificate(user: option.shareWith) { account, certificate, certificateUser, data, error in
+                NCActivityIndicator.shared.stop()
+                if error == .success, let certificate = certificate, let certificateUser = certificateUser {
+
+                } else {
+                    NCContentPresenter.shared.showError(error: error)
                 }
-            } else {
-                NCContentPresenter.shared.showError(error: error)
+                self.delegate?.shareCompleted()
             }
-            self.delegate?.shareCompleted()
+        } else {
+            NextcloudKit.shared.createShare(path: filenamePath, shareType: option.shareType, shareWith: option.shareWith, password: option.password, permissions: option.permissions) { (account, share, data, error) in
+                NCActivityIndicator.shared.stop()
+                if error == .success, let share = share {
+                    option.idShare = share.idShare
+                    NCManageDatabase.shared.addShare(account: self.metadata.account, home: self.metadata.home, shares: [share])
+                    if option.hasChanges(comparedTo: share) {
+                        self.updateShare(option: option)
+                    }
+                } else {
+                    NCContentPresenter.shared.showError(error: error)
+                }
+                self.delegate?.shareCompleted()
+            }
         }
     }
 
