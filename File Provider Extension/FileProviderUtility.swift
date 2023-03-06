@@ -61,9 +61,8 @@ class fileProviderUtility: NSObject {
 
     func getParentItemIdentifier(metadata: tableMetadata) -> NSFileProviderItemIdentifier? {
 
-        let homeServerUrl = NCUtilityFileSystem.shared.getHomeServer(urlBase: metadata.urlBase, userId: metadata.userId)
         if let directory = NCManageDatabase.shared.getTableDirectory(predicate: NSPredicate(format: "account == %@ AND serverUrl == %@", metadata.account, metadata.serverUrl)) {
-            if directory.serverUrl == homeServerUrl {
+            if directory.serverUrl == metadata.home {
                 return NSFileProviderItemIdentifier(NSFileProviderItemIdentifier.rootContainer.rawValue)
             } else {
                 // get the metadata.ocId of parent Directory

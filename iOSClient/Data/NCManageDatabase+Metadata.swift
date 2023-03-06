@@ -115,6 +115,10 @@ extension tableMetadata {
         (fileNameView as NSString).deletingPathExtension
     }
 
+    var home: String {
+        return NCUtilityFileSystem.shared.getHomeServer(urlBase: urlBase, userId: userId)
+    }
+
     var isRenameable: Bool {
         if lock {
             return false
@@ -181,13 +185,17 @@ extension tableMetadata {
         return directory && size == 0 && !e2eEncrypted && CCUtility.isEnd(toEndEnabled: account)
     }
 
+    var isDirectoryTopMost: Bool {
+        return directory && serverUrl == NCUtilityFileSystem.shared.getHomeServer(urlBase: urlBase, userId: userId)
+    }
+
     var isSharable: Bool {
         let sharing = NCManageDatabase.shared.getCapabilitiesServerBool(account: account, elements: NCElementsJSON.shared.capabilitiesFileSharingApiEnabled, exists: false)
         if !sharing { return false }
         if !e2eEncrypted && !isDirectoryE2EE { return true }
         let serverVersionMajor = NCManageDatabase.shared.getCapabilitiesServerInt(account: account, elements: NCElementsJSON.shared.capabilitiesVersionMajor)
         if serverVersionMajor >= NCGlobal.shared.nextcloudVersion26 && directory {
-            // E2EE DIRECTORY SECURE FILE DROP (SHARE AVAILABLE)
+            // E2EE DIRECTORY SECURE FILE DROP + SHARE FOLDER TOPMOST TO USER
             return true
         } else {
             return false

@@ -46,7 +46,7 @@ extension NCToggleCellConfig {
 
 protocol NCPermission: NCToggleCellConfig {
     static var forDirectory: [Self] { get }
-    static var forDirectoryE2EE: [Self] { get }
+    static var forDirectoryE2EESecureFileDrop: [Self] { get }
     static var forFile: [Self] { get }
     func hasResharePermission(for parentPermission: Int) -> Bool
 }
@@ -75,7 +75,7 @@ enum NCUserPermission: CaseIterable, NCPermission {
 
     case reshare, edit, create, delete
     static let forDirectory: [NCUserPermission] = NCUserPermission.allCases
-    static let forDirectoryE2EE: [NCUserPermission] = []
+    static let forDirectoryE2EESecureFileDrop: [NCUserPermission] = []
     static let forFile: [NCUserPermission] = [.reshare, .edit]
 
     var title: String {
@@ -159,7 +159,7 @@ enum NCLinkPermission: NCPermission {
     case allowEdit, viewOnly, uploadEdit, fileDrop, secureFileDrop
     static let forDirectory: [NCLinkPermission] = [.viewOnly, .uploadEdit, .fileDrop]
     static let forFile: [NCLinkPermission] = [.allowEdit]
-    static let forDirectoryE2EE: [NCLinkPermission] = [.secureFileDrop]
+    static let forDirectoryE2EESecureFileDrop: [NCLinkPermission] = [.secureFileDrop]
 }
 
 enum NCShareDetails: CaseIterable, NCShareCellConfig {
@@ -217,7 +217,13 @@ struct NCShareConfig {
         self.share = share
         self.resharePermission = parentMetadata.sharePermissionsCollaborationServices
         let type: NCPermission.Type = share.shareType == NCShareCommon.shared.SHARE_TYPE_LINK ? NCLinkPermission.self : NCUserPermission.self
-        self.permissions = parentMetadata.directory ? (parentMetadata.e2eEncrypted ? type.forDirectoryE2EE : type.forDirectory) : type.forFile
+        if parentMetadata.e2eEncrypted, share.shareType == 0 {
+            self.permissions = type.forDirectory
+        } else if parentMetadata.e2eEncrypted, share.shareType == 3 {
+            self.permissions = type.forDirectoryE2EESecureFileDrop
+        } else {
+            self.permissions = parentMetadata.directory ? type.forDirectory : type.forFile
+        }
         self.advanced = share.shareType == NCShareCommon.shared.SHARE_TYPE_LINK ? NCShareDetails.forLink : NCShareDetails.forUser
     }
 

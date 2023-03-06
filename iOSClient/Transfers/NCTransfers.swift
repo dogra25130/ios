@@ -184,8 +184,7 @@ class NCTransfers: NCCollectionViewCommon, NCTransferCellDelegate {
         cell.imageItem.backgroundColor = nil
         cell.labelTitle.text = metadata.fileNameView
         cell.labelTitle.textColor = .label
-        let serverUrlHome = NCUtilityFileSystem.shared.getHomeServer(urlBase: metadata.urlBase, userId: metadata.userId)
-        var pathText = metadata.serverUrl.replacingOccurrences(of: serverUrlHome, with: "")
+        var pathText = metadata.serverUrl.replacingOccurrences(of: metadata.home, with: "")
         if pathText == "" { pathText = "/" }
         cell.labelPath.text = pathText
         cell.setButtonMore(named: NCGlobal.shared.buttonMoreStop, image: NCBrandColor.cacheImages.buttonStop)

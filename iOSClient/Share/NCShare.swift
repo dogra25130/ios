@@ -84,8 +84,10 @@ class NCShare: UIViewController, NCShareNetworkingDelegate, NCSharePagingContent
         guard let metadata = metadata else { return }
 
         if metadata.e2eEncrypted {
-            searchFieldTopConstraint.constant = -50
-            searchField.isHidden = true
+            if !metadata.isDirectoryTopMost {
+                searchFieldTopConstraint.constant = -50
+                searchField.isHidden = true
+            }
         } else {
             checkSharedWithYou()
         }
@@ -242,7 +244,13 @@ class NCShare: UIViewController, NCShareNetworkingDelegate, NCSharePagingContent
             if sharee.shareType == NCShareCommon.shared.SHARE_TYPE_CIRCLE {
                 label += " (\(sharee.circleInfo), \(sharee.circleOwner))"
             }
-            dropDown.dataSource.append(label)
+            if let metadata = metadata, metadata.e2eEncrypted {
+                if sharee.shareType == 0 {
+                    dropDown.dataSource.append(label)
+                }
+            } else {
+                dropDown.dataSource.append(label)
+            }
         }
 
         dropDown.anchorView = searchField
