@@ -541,6 +541,8 @@
 		F7CB68A0254169530050EC94 /* NCSettings.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F7CB689F254169530050EC94 /* NCSettings.storyboard */; };
 		F7CBC31C24F78E79004D3812 /* NCSortMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CBC31B24F78E79004D3812 /* NCSortMenu.swift */; };
 		F7D1612023CF19E30039EBBF /* NCViewerRichWorkspace.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F7D1611F23CF19E30039EBBF /* NCViewerRichWorkspace.storyboard */; };
+		F7D21AF229B8A85E007FB723 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = F7D21AF129B8A85E007FB723 /* Gzip */; };
+		F7D21AF429B8A929007FB723 /* Gzip in Frameworks */ = {isa = PBXBuildFile; productRef = F7D21AF329B8A929007FB723 /* Gzip */; };
 		F7D56B1A2972405500FA46C4 /* Mantis in Frameworks */ = {isa = PBXBuildFile; productRef = F7D56B192972405500FA46C4 /* Mantis */; };
 		F7D57C8626317BDA00DE301D /* NCAccountRequest.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F7CA212C25F1333200826ABB /* NCAccountRequest.storyboard */; };
 		F7D57C8B26317BDE00DE301D /* NCAccountRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7CA212B25F1333200826ABB /* NCAccountRequest.swift */; };
@@ -1277,6 +1279,7 @@
 			files = (
 				F710FC80277B7D2700AA9FBF /* RealmSwift in Frameworks */,
 				F72AD70F28C24BA1006CB92D /* NextcloudKit in Frameworks */,
+				F7D21AF429B8A929007FB723 /* Gzip in Frameworks */,
 				F72CD01227A7E92400E59476 /* JGProgressHUD in Frameworks */,
 				F73ADD2126554F8E0069EA0D /* SwiftEntryKit in Frameworks */,
 				F7EBCDCF277B81FF00A4EF67 /* UICKeyChainStore in Frameworks */,
@@ -1315,6 +1318,7 @@
 			files = (
 				F7D56B1A2972405500FA46C4 /* Mantis in Frameworks */,
 				F76DA941277B75870082465B /* KTVHTTPCache.xcframework in Frameworks */,
+				F7D21AF229B8A85E007FB723 /* Gzip in Frameworks */,
 				F7ED547C25EEA65400956C55 /* QRCodeReader in Frameworks */,
 				F788ECC7263AAAFA00ADC67F /* MarkdownKit in Frameworks */,
 				F77BC3EB293E5268005F2B08 /* Swifter in Frameworks */,
@@ -2454,6 +2458,7 @@
 				F7EBCDCE277B81FF00A4EF67 /* UICKeyChainStore */,
 				F72CD01127A7E92400E59476 /* JGProgressHUD */,
 				F72AD70E28C24BA1006CB92D /* NextcloudKit */,
+				F7D21AF329B8A929007FB723 /* Gzip */,
 			);
 			productName = "Share Ext";
 			productReference = F7CE8AFB1DC1F8D8009CAE48 /* Share.appex */;
@@ -2551,6 +2556,7 @@
 				F77BC3EA293E5268005F2B08 /* Swifter */,
 				F7D56B192972405500FA46C4 /* Mantis */,
 				F787AC08298BCB4A0001BB00 /* SVGKitSwift */,
+				F7D21AF129B8A85E007FB723 /* Gzip */,
 			);
 			productName = "Crypto Cloud";
 			productReference = F7CE8AFA1DC1F8D8009CAE48 /* Nextcloud.app */;
@@ -2709,6 +2715,7 @@
 				F77333862927A72100466E35 /* XCRemoteSwiftPackageReference "OpenSSL" */,
 				F77BC3E9293E5268005F2B08 /* XCRemoteSwiftPackageReference "swifter" */,
 				F7D56B182972405400FA46C4 /* XCRemoteSwiftPackageReference "Mantis" */,
+				F7D21AF029B8A85E007FB723 /* XCRemoteSwiftPackageReference "GzipSwift" */,
 			);
 			productRefGroup = F7F67B9F1A24D27800EE80DA;
 			projectDirPath = "";
@@ -4278,6 +4285,14 @@
 				kind = branch;
 			};
 		};
+		F7D21AF029B8A85E007FB723 /* XCRemoteSwiftPackageReference "GzipSwift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/1024jp/GzipSwift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.0;
+			};
+		};
 		F7D56B182972405400FA46C4 /* XCRemoteSwiftPackageReference "Mantis" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/marinofaggiana/Mantis";
@@ -4506,6 +4521,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F7BB7E4527A18C56009B9F29 /* XCRemoteSwiftPackageReference "Parchment" */;
 			productName = Parchment;
+		};
+		F7D21AF129B8A85E007FB723 /* Gzip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F7D21AF029B8A85E007FB723 /* XCRemoteSwiftPackageReference "GzipSwift" */;
+			productName = Gzip;
+		};
+		F7D21AF329B8A929007FB723 /* Gzip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F7D21AF029B8A85E007FB723 /* XCRemoteSwiftPackageReference "GzipSwift" */;
+			productName = Gzip;
 		};
 		F7D56B192972405500FA46C4 /* Mantis */ = {
 			isa = XCSwiftPackageProductDependency;
