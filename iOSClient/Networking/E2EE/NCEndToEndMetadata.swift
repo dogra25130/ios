@@ -250,8 +250,8 @@ class NCEndToEndMetadata: NSObject {
                     let metadataKeyIndex = files.metadataKey
                     let initializationVector = files.initializationVector
 
-                    if let encrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(encrypted, key: metadataKey, tag: authenticationTag),
-                       let data = NCEndToEndEncryption.sharedManager().dataBase64Decode(encrypted),
+                    if let decrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(encrypted, key: metadataKey, tag: authenticationTag),
+                       let data = NCEndToEndEncryption.sharedManager().dataBase64Decode(decrypted),
                        let jsonText = String(data: data, encoding: .utf8) {
                         do {
                             print("Json: " + jsonText)
@@ -411,8 +411,8 @@ class NCEndToEndMetadata: NSObject {
                        let keyDecripted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey),
                        let keyDecriptedData = Data(base64Encoded: keyDecripted, options: NSData.Base64DecodingOptions(rawValue: 0)),
                        let key = String(data: keyDecriptedData, encoding: .utf8) {
-                        if let encrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag) as? Data {
-                            if encrypted.isGzipped {
+                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag) as? Data {
+                            if decrypted.isGzipped {
                                 print("ok")
                             }
                             print("ok")
