@@ -411,8 +411,8 @@ class NCEndToEndMetadata: NSObject {
                        let keyDecripted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey),
                        let keyDecriptedData = Data(base64Encoded: keyDecripted, options: NSData.Base64DecodingOptions(rawValue: 0)),
                        let key = String(data: keyDecriptedData, encoding: .utf8) {
-                        if let data = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag) as? Data {
-                            if data.isGzipped {
+                        if let encrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag) as? Data {
+                            if encrypted.isGzipped {
                                 print("ok")
                             }
                             print("ok")
