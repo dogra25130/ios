@@ -387,7 +387,9 @@ class NCEndToEndMetadata: NSObject {
 
         let decoder = JSONDecoder()
         let privateKey = CCUtility.getEndToEndPrivateKey(account)
-        let passphrase = CCUtility.getEndToEndPassphrase(account)
+        // let publicKey = CCUtility.getEndToEndPublicKey(account)
+        // let csr = CCUtility.getEndToEndCertificate(account)
+        // let passphrase = CCUtility.getEndToEndPassphrase(account)
 
         do {
             data.printJson()
@@ -402,18 +404,20 @@ class NCEndToEndMetadata: NSObject {
 
             if let users = users {
                 for user in users {
-                    if user.userId == ownerId, let keyData = Data(base64Encoded: user.encryptedKey) {
-                        let key = String(data: keyData as Data, encoding: .utf8)
-                        let privateKey = NCEndToEndEncryption.sharedManager().decryptPrivateKey(user.encryptedKey, passphrase: passphrase, publicKey: user.certificate)
-                        print("OK")
-                        // let key = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey)
-                        // let ciphertext = metadata.ciphertext
-                        // let encrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(ciphertext, key: key)
+                    if user.userId == ownerId,
+                       let keyData: NSData = NSData(base64Encoded: user.encryptedKey, options: NSData.Base64DecodingOptions(rawValue: 0)),
+                       let keyDecripted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey),
+                       let keyDecriptedData = Data(base64Encoded: keyDecripted, options: NSData.Base64DecodingOptions(rawValue: 0)),
+                       let key = String(data: keyDecriptedData, encoding: .utf8) {
+                        if let encrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key) as? Data {
+                            if encrypted.isGzipped {
+                                print("ok")
+                            }
+                            print("ok")
+                        }
                     }
                 }
             }
-
-
         } catch let error {
             print("Serious internal error in decoding metadata (" + error.localizedDescription + ")")
             return false
