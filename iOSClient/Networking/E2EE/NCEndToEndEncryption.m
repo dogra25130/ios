@@ -455,7 +455,7 @@
     return nil;
 }
 
-- (NSString *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag
+- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag
 {
     NSMutableData *plainData;
     NSRange range = [encrypted rangeOfString:IV_DELIMITER_ENCODED];
@@ -484,13 +484,12 @@
     cipherData = [cipherData subdataWithRange:NSMakeRange(0, cipherData.length - AES_GCM_TAG_LENGTH)];
     
     BOOL result = [self decryptData:cipherData plainData:&plainData keyData:keyData keyLen:AES_KEY_128_LENGTH ivData:ivData tagData:tagData];
-    
+
     if (plainData != nil && result) {
-        NSString *plain = [self base64DecodeData:plainData];
-        return plain;
+        return [self dataBase64DecodeData:plainData];
+    } else {
+        return nil;
     }
-        
-    return nil;
 }
 
 #
@@ -978,6 +977,27 @@
     BIO_free_all(buffer);
     
     return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+}
+
+- (NSData *)dataBase64DecodeData:(NSData *)input
+{
+    NSMutableData *data = [NSMutableData data];
+
+    BIO *buffer = BIO_new_mem_buf((void *)[input bytes], (int)[input length]);
+    BIO *base64 = BIO_new(BIO_f_base64());
+    buffer = BIO_push(base64, buffer);
+    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
+
+    char chars[input.length];
+    int length = BIO_read(buffer, chars, (int)sizeof(chars));
+    while (length > 0) {
+        [data appendBytes:chars length:length];
+        length = BIO_read(buffer, chars, (int)sizeof(chars));
+    }
+
+    BIO_free_all(buffer);
+
+    return data;
 }
 
 - (NSData *)base64DecodeString:(NSString *)input
