@@ -486,7 +486,7 @@
     BOOL result = [self decryptData:cipherData plainData:&plainData keyData:keyData keyLen:AES_KEY_128_LENGTH ivData:ivData tagData:tagData];
 
     if (plainData != nil && result) {
-        return [self dataBase64DecodeData:plainData];
+        return plainData;
     } else {
         return nil;
     }

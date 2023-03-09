@@ -49,7 +49,7 @@
 
 - (NSData *)generateKey:(int)length;
 - (NSString *)createSHA512:(NSString *)string;
-
+- (NSData *)dataBase64DecodeData:(NSData *)input;
 - (NSString *)extractPublicKeyFromCertificate:(NSString *)pemCertificate;
 
 @end
