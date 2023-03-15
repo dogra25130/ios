@@ -70,7 +70,7 @@ class NCEndToEndMetadata: NSObject {
 
         struct Users: Codable {
             let certificate: String
-            let encryptedKey: String
+            let encryptedMetadataKey: String
             let userId: String
         }
 
@@ -407,7 +407,7 @@ class NCEndToEndMetadata: NSObject {
             if let users = users {
                 for user in users {
                     if user.userId == ownerId,
-                       let keyData: NSData = NSData(base64Encoded: user.encryptedKey, options: NSData.Base64DecodingOptions(rawValue: 0)),
+                       let keyData: NSData = NSData(base64Encoded: user.encryptedMetadataKey, options: NSData.Base64DecodingOptions(rawValue: 0)),
                        let keyDecripted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey),
                        let keyDecriptedData = Data(base64Encoded: keyDecripted, options: NSData.Base64DecodingOptions(rawValue: 0)),
                        let key = String(data: keyDecriptedData, encoding: .utf8) {
