@@ -688,13 +688,14 @@
     status = EVP_PKEY_decrypt(ctx, out, &outLen, [cipherData bytes], (int)[cipherData length]);
     if (status <= 0)
         return nil;
-    
-    NSString *outString = [[NSString alloc] initWithBytes:out length:outLen encoding:NSUTF8StringEncoding];
-    
+
+    NSData *outData = [[NSData alloc] initWithBytes:out length:outLen];
+    NSString *out64 = [outData base64EncodedStringWithOptions:0];
+
     if (out)
         free(out);
     
-    return outString;
+    return out64;
 }
 
 #
