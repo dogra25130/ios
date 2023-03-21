@@ -408,9 +408,12 @@ class NCEndToEndMetadata: NSObject {
                 for user in users {
                     if user.userId == ownerId,
                        let data = Data(base64Encoded: user.encryptedMetadataKey) {
-                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey),
-                           let keyData = Data(base64Encoded: decrypted) {
-                            let key = String(data: keyData, encoding: .utf8)
+                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey) {
+                            // DESKTOP
+                            let key = decrypted.base64EncodedString()
+                            // ANDROID
+                            // let keyData = Data(base64Encoded: decrypted)
+                            // let key = String(data: keyData, encoding: .utf8)
                             print("")
                         }
                     }
