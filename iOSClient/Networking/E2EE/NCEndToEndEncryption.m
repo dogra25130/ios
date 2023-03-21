@@ -412,7 +412,8 @@
             NSData *encryptData = [self encryptAsymmetricString:ASYMMETRIC_STRING_TEST publicKey:publicKey privateKey:nil];
             if (!encryptData)
                 return nil;
-            NSString *decryptString = [self decryptAsymmetricData:encryptData privateKey:privateKey];
+            NSData *decryptData = [self decryptAsymmetricData:encryptData privateKey:privateKey];
+            NSString *decryptString = [[NSString alloc] initWithData:decryptData encoding:NSUTF8StringEncoding];
             if (decryptString && [decryptString isEqualToString:ASYMMETRIC_STRING_TEST])
                 return privateKey;
             else
@@ -646,7 +647,7 @@
     return outData;
 }
 
-- (NSString *)decryptAsymmetricData:(NSData *)cipherData privateKey:(NSString *)privateKey
+- (NSData *)decryptAsymmetricData:(NSData *)cipherData privateKey:(NSString *)privateKey
 {
     unsigned char *pKey = (unsigned char *)[privateKey UTF8String];
     int status = 0;
@@ -690,12 +691,12 @@
         return nil;
 
     NSData *outData = [[NSData alloc] initWithBytes:out length:outLen];
-    NSString *out64 = [outData base64EncodedStringWithOptions:0];
+    //NSString *out64 = [outData base64EncodedStringWithOptions:0];
 
     if (out)
         free(out);
     
-    return out64;
+    return outData;
 }
 
 #

@@ -406,14 +406,14 @@ class NCEndToEndMetadata: NSObject {
 
             if let users = users {
                 for user in users {
-                    if user.userId == ownerId,
-                       let keyData: NSData = NSData(base64Encoded: user.encryptedMetadataKey, options: NSData.Base64DecodingOptions(rawValue: 0)),
-                       let key = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(keyData as Data?, privateKey: privateKey) {
-                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag) as? Data {
-                            if decrypted.isGzipped {
-                                print("ok")
+                    if user.userId == ownerId {
+                        let data = Data(user.encryptedMetadataKey.utf8)
+                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey) {
+                            let key = decrypted.base64EncodedString()
+                            let keyData = decrypted.base64EncodedData()
+                            if keyData.isGzipped {
+                                print("OK")
                             }
-                            print("ok")
                         }
                     }
                 }

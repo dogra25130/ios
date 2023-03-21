@@ -38,7 +38,7 @@
 - (NSString *)decryptPrivateKey:(NSString *)privateKeyCipher passphrase:(NSString *)passphrase publicKey:(NSString *)publicKey;
 
 - (NSData *)encryptAsymmetricString:(NSString *)plain publicKey:(NSString *)publicKey privateKey:(NSString *)privateKey;
-- (NSString *)decryptAsymmetricData:(NSData *)cipherData privateKey:(NSString *)privateKey;
+- (NSData *)decryptAsymmetricData:(NSData *)cipherData privateKey:(NSString *)privateKey;
 
 - (NSString *)encryptEncryptedJson:(NSString *)encrypted key:(NSString *)key;
 - (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag;
