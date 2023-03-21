@@ -423,8 +423,9 @@ class NCEndToEndMetadata: NSObject {
                             if let decrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag, nonce: metadata.nonce) {
                                 if decrypted.isGzipped {
                                     do {
-                                        let json = try decrypted.gunzipped()
-                                        print(json)
+                                        let data = try decrypted.gunzipped()
+                                        let jsonText = String(data: data, encoding: .utf8)
+                                        print(jsonText)
                                     } catch let error {
                                         print("Serious internal error in decoding metadata (" + error.localizedDescription + ")")
                                         return false
