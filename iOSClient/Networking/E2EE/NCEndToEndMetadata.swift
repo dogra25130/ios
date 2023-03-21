@@ -228,10 +228,10 @@ class NCEndToEndMetadata: NSObject {
             // metadata
             //
             for metadataKey in metadata.metadataKeys {
-                if let metadataKeyData: NSData = NSData(base64Encoded: metadataKey.value, options: NSData.Base64DecodingOptions(rawValue: 0)),
-                   let metadataKeyBase64 = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(metadataKeyData as Data?, privateKey: privateKey),
-                   let metadataKeyBase64Data = Data(base64Encoded: metadataKeyBase64, options: NSData.Base64DecodingOptions(rawValue: 0)),
-                   let key = String(data: metadataKeyBase64Data, encoding: .utf8) {
+                let data = Data(base64Encoded: metadataKey.value)
+                if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey),
+                   let keyData = Data(base64Encoded: decrypted) {
+                    let key = String(data: keyData, encoding: .utf8)
                     metadataKeys[metadataKey.key] = key
                 }
             }
@@ -408,9 +408,10 @@ class NCEndToEndMetadata: NSObject {
                 for user in users {
                     if user.userId == ownerId {
                         let data = Data(user.encryptedMetadataKey.utf8)
-                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey) {
-                            let key = decrypted.base64EncodedString()
-                            let keyData = decrypted.base64EncodedData()
+                        let certificate = user.certificate
+                        if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey),
+                           let keyData = Data(base64Encoded: decrypted) {
+                            // let key = String(data: keyData, encoding: .utf8)
                             if keyData.isGzipped {
                                 print("OK")
                             }
