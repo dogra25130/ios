@@ -415,9 +415,24 @@ class NCEndToEndMetadata: NSObject {
                             print("DESKTOP KEY: " + key)
 
                             // ANDROID
-                            if let keyData = Data(base64Encoded: decrypted),
-                               let key = String(data: keyData, encoding: .utf8) {
-                                print("ANDROID KEY: " + key)
+                            // if let keyData = Data(base64Encoded: decrypted),
+                            //   let key = String(data: keyData, encoding: .utf8) {
+                            //    print("ANDROID KEY: " + key)
+                            // }
+
+                            if let decrypted = NCEndToEndEncryption.sharedManager().decryptEncryptedJson(metadata.ciphertext, key: key, tag: metadata.authenticationTag, nonce: metadata.nonce) {
+                                if decrypted.isGzipped {
+                                    do {
+                                        let json = try decrypted.gunzipped()
+                                        print(json)
+                                    } catch let error {
+                                        print("Serious internal error in decoding metadata (" + error.localizedDescription + ")")
+                                        return false
+                                    }
+                                } else {
+                                    print("Serious internal error in decoding metadata")
+                                    return false
+                                }
                             }
                         }
                     }

@@ -493,6 +493,24 @@
     }
 }
 
+- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag nonce:(NSString *)nonce;
+{
+    NSMutableData *plainData;
+
+    NSData *cipherData = [[NSData alloc] initWithBase64EncodedString:encrypted options:0];
+    NSData *keyData = [[NSData alloc] initWithBase64EncodedString:key options:0];
+    NSData *ivData = [[NSData alloc] initWithBase64EncodedString:nonce options:0];
+    NSData *tagData = [[NSData alloc] initWithBase64EncodedString:tag options:0];
+
+    BOOL result = [self decryptData:cipherData plainData:&plainData keyData:keyData keyLen:AES_KEY_128_LENGTH ivData:ivData tagData:tagData];
+
+    if (plainData != nil && result) {
+        return plainData;
+    } else {
+        return nil;
+    }
+}
+
 #
 #pragma mark - Encrypt / Decrypt file
 #
