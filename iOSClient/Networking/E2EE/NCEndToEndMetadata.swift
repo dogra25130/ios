@@ -487,7 +487,6 @@ class NCEndToEndMetadata: NSObject {
         let privateKey = CCUtility.getEndToEndPrivateKey(account)
 
         do {
-            data.printJson()
             let json = try decoder.decode(E2eeV2.self, from: data)
 
             let metadata = json.metadata
