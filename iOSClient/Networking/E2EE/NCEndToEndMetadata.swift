@@ -502,17 +502,7 @@ class NCEndToEndMetadata: NSObject {
                     if user.userId == ownerId,
                        let data = Data(base64Encoded: user.encryptedMetadataKey) {
                         if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey) {
-
-                            // DESKTOP
                             let key = decrypted.base64EncodedString()
-                            print("DESKTOP KEY: " + key)
-
-                            // ANDROID
-                            // if let keyData = Data(base64Encoded: decrypted),
-                            //   let key = String(data: keyData, encoding: .utf8) {
-                            //    print("ANDROID KEY: " + key)
-                            // }
-
                             if let decrypted = NCEndToEndEncryption.sharedManager().decryptPayloadFile(metadata.ciphertext, key: key, tag: metadata.authenticationTag, nonce: metadata.nonce) {
                                 if decrypted.isGzipped {
                                     do {
