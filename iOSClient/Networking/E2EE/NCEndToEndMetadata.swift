@@ -494,9 +494,6 @@ class NCEndToEndMetadata: NSObject {
             let version = json.version
             let users = json.users
 
-            // Check version 2
-            if version != 2 { return false }
-
             if let users = users {
                 for user in users {
                     if user.userId == ownerId,
