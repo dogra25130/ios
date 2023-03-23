@@ -44,6 +44,12 @@ class NCNetworkingE2EEUpload: NSObject {
 
     func upload(metadata: tableMetadata, uploadE2EEDelegate: uploadE2EEDelegate? = nil) async -> (NKError) {
 
+        if let error = NCNetworkingE2EE.shared.isE2EEVersionWriteable(account: metadata.account) {
+            NCManageDatabase.shared.deleteMetadata(predicate: NSPredicate(format: "ocId == %@", metadata.ocId))
+            NCContentPresenter.shared.showError(error: error)
+            return error
+        }
+
         var metadata = tableMetadata.init(value: metadata)
         let ocIdTemp = metadata.ocId
         let errorCreateEncrypted = NKError(errorCode: NCGlobal.shared.errorInternalError, errorDescription: "_e2e_error_create_encrypted_")
@@ -154,7 +160,7 @@ class NCNetworkingE2EEUpload: NSObject {
             objectE2eEncryption.metadataKey = result.metadataKey
             objectE2eEncryption.metadataKeyIndex = result.metadataKeyIndex
         } else {
-            let key = NCEndToEndEncryption.sharedManager()?.generateKey(16) as NSData?
+            let key = NCEndToEndEncryption.sharedManager()?.generateKey() as NSData?
             objectE2eEncryption.metadataKey = key!.base64EncodedString()
             objectE2eEncryption.metadataKeyIndex = 0
         }
@@ -167,7 +173,6 @@ class NCNetworkingE2EEUpload: NSObject {
         objectE2eEncryption.initializationVector = initializationVector! as String
         objectE2eEncryption.mimeType = metadata.contentType
         objectE2eEncryption.serverUrl = metadata.serverUrl
-        objectE2eEncryption.version = 1
         NCManageDatabase.shared.addE2eEncryption(objectE2eEncryption)
 
         // Rebuild metadata

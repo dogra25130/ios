@@ -33,24 +33,33 @@
 @property (nonatomic, strong) NSString *generatedPublicKey;
 @property (nonatomic, strong) NSString *generatedPrivateKey;
 
+// Certificate
+
 - (NSString *)createCSR:(NSString *)userId directory:(NSString *)directory;
 - (NSString *)encryptPrivateKey:(NSString *)userId directory: (NSString *)directory passphrase:(NSString *)passphrase privateKey:(NSString **)privateKey;
-- (NSString *)decryptPrivateKey:(NSString *)privateKeyCipher passphrase:(NSString *)passphrase publicKey:(NSString *)publicKey;
+- (NSData *)decryptPrivateKey:(NSString *)privateKeyCipher passphrase:(NSString *)passphrase publicKey:(NSString *)publicKey;
+
+// Encrypt / Decrypt file material
+
+- (NSString *)encryptPayloadFile:(NSString *)encrypted key:(NSString *)key;
+- (NSData *)decryptPayloadFile:(NSString *)encrypted key:(NSString *)key;
+- (NSData *)decryptPayloadFile:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag nonce:(NSString *)nonce;
+
+// Encrypt/Decrypt asymmetric
 
 - (NSData *)encryptAsymmetricString:(NSString *)plain publicKey:(NSString *)publicKey privateKey:(NSString *)privateKey;
 - (NSData *)decryptAsymmetricData:(NSData *)cipherData privateKey:(NSString *)privateKey;
 
-- (NSString *)encryptEncryptedJson:(NSString *)encrypted key:(NSString *)key;
-- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag;
-- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag nonce:(NSString *)nonce;
+// Encrypt / Decrypt file
 
-- (void)encryptkey:(NSString **)key initializationVector:(NSString **)initializationVector;
 - (BOOL)encryptFile:(NSString *)fileName fileNameIdentifier:(NSString *)fileNameIdentifier directory:(NSString *)directory key:(NSString **)key initializationVector:(NSString **)initializationVector authenticationTag:(NSString **)authenticationTag;
 - (BOOL)decryptFile:(NSString *)fileName fileNameView:(NSString *)fileNameView ocId:(NSString *)ocId key:(NSString *)key initializationVector:(NSString *)initializationVector authenticationTag:(NSString *)authenticationTag;
 
-- (NSData *)generateKey:(int)length;
+// Utility
+
+- (void)Encodedkey:(NSString **)key initializationVector:(NSString **)initializationVector;
+- (NSData *)generateKey;
 - (NSString *)createSHA512:(NSString *)string;
-- (NSData *)dataBase64DecodeData:(NSData *)input;
 - (NSString *)extractPublicKeyFromCertificate:(NSString *)pemCertificate;
 
 @end

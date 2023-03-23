@@ -350,12 +350,10 @@
     NSData *ivData = [self generateIV:AES_IVEC_LENGTH];
     NSData *tagData = [NSData new];
     
-    /* ENCODE 64 privateKey JAVA compatibility */
-    NSString *privateKeyBase64 = [_privateKeyData base64EncodedStringWithOptions:0];
-    NSData *privateKeyBase64Data = [privateKeyBase64 dataUsingEncoding:NSUTF8StringEncoding];
-    /* --------------------------------------- */
-    
-    BOOL result = [self encryptData:privateKeyBase64Data cipherData:&privateKeyCipherData keyData:keyData keyLen:AES_KEY_256_LENGTH ivData:ivData tagData:&tagData];
+    NSString *pkEncoded = [_privateKeyData base64EncodedStringWithOptions:0];
+    NSData *pkEncodedData = [pkEncoded dataUsingEncoding:NSUTF8StringEncoding];
+
+    BOOL result = [self encryptData:pkEncodedData cipherData:&privateKeyCipherData keyData:keyData keyLen:AES_KEY_256_LENGTH ivData:ivData tagData:&tagData];
     
     if (result && privateKeyCipherData) {
         
@@ -373,11 +371,10 @@
     }
 }
 
-- (NSString *)decryptPrivateKey:(NSString *)privateKeyCipher passphrase:(NSString *)passphrase publicKey:(NSString *)publicKey
+- (NSData *)decryptPrivateKey:(NSString *)privateKeyCipher passphrase:(NSString *)passphrase publicKey:(NSString *)publicKey
 {
     NSMutableData *privateKeyData = [NSMutableData new];
-    NSString *privateKey = @"";
-    
+
     // Key (data)
     NSMutableData *keyData = [NSMutableData dataWithLength:PBKDF2_KEY_LENGTH/8];
     
@@ -406,28 +403,18 @@
     
     BOOL result = [self decryptData:privateKeyCipherData plainData:&privateKeyData keyData:keyData keyLen:AES_KEY_256_LENGTH ivData:ivData tagData:tagData];
     
-    if (result && privateKeyData)
-        privateKey = [self base64DecodeData:privateKeyData];
-        if (privateKey) {
-            NSData *encryptData = [self encryptAsymmetricString:ASYMMETRIC_STRING_TEST publicKey:publicKey privateKey:nil];
-            if (!encryptData)
-                return nil;
-            NSData *decryptData = [self decryptAsymmetricData:encryptData privateKey:privateKey];
-            NSString *decryptString = [[NSString alloc] initWithData:decryptData encoding:NSUTF8StringEncoding];
-            if (decryptString && [decryptString isEqualToString:ASYMMETRIC_STRING_TEST])
-                return privateKey;
-            else
-                return nil;
-    } else {
-        return nil;
+    if (result && privateKeyData) {
+        return privateKeyData;
     }
+
+    return nil;
 }
 
 #
-#pragma mark - Encrypt / Decrypt Encrypted Json
+#pragma mark - Encrypt / Decrypt file material
 #
 
-- (NSString *)encryptEncryptedJson:(NSString *)encrypted key:(NSString *)key
+- (NSString *)encryptPayloadFile:(NSString *)encrypted key:(NSString *)key
 {
     NSMutableData *cipherData;
     NSData *tagData = [NSData new];
@@ -456,7 +443,8 @@
     return nil;
 }
 
-- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag
+
+- (NSData *)decryptPayloadFile:(NSString *)encrypted key:(NSString *)key
 {
     NSMutableData *plainData;
     NSRange range = [encrypted rangeOfString:IV_DELIMITER_ENCODED];
@@ -466,34 +454,35 @@
             return nil;
         }
     }
-    
+
     // Cipher
     NSString *cipher = [encrypted substringToIndex:(range.location)];
     NSData *cipherData = [[NSData alloc] initWithBase64EncodedString:cipher options:0];
-    
+
     // Key
     NSData *keyData = [[NSData alloc] initWithBase64EncodedString:key options:0];
-    
+
     // IV
     NSString *iv  = [encrypted substringWithRange:NSMakeRange(range.location + range.length, encrypted.length - (range.location + range.length))];
     NSData *ivData = [[NSData alloc] initWithBase64EncodedString:iv options:0];
 
     // TAG
+    NSString *tag = [cipher substringWithRange:NSMakeRange(cipher.length - AES_GCM_TAG_LENGTH, AES_GCM_TAG_LENGTH)];
     NSData *tagData = [[NSData alloc] initWithBase64EncodedString:tag options:0];
 
     // REMOVE TAG
     cipherData = [cipherData subdataWithRange:NSMakeRange(0, cipherData.length - AES_GCM_TAG_LENGTH)];
-    
+
     BOOL result = [self decryptData:cipherData plainData:&plainData keyData:keyData keyLen:AES_KEY_128_LENGTH ivData:ivData tagData:tagData];
 
     if (plainData != nil && result) {
         return plainData;
-    } else {
-        return nil;
     }
+
+    return nil;
 }
 
-- (NSData *)decryptEncryptedJson:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag nonce:(NSString *)nonce;
+- (NSData *)decryptPayloadFile:(NSString *)encrypted key:(NSString *)key tag:(NSString *)tag nonce:(NSString *)nonce
 {
     NSMutableData *plainData;
 
@@ -514,16 +503,6 @@
 #
 #pragma mark - Encrypt / Decrypt file
 #
-
-- (void)encryptkey:(NSString **)key initializationVector:(NSString **)initializationVector
-{
-    NSData *keyData = [self generateKey:AES_KEY_128_LENGTH];
-    NSData *ivData = [self generateIV:AES_IVEC_LENGTH];
-    
-    *key = [keyData base64EncodedStringWithOptions:0];
-    *initializationVector = [ivData base64EncodedStringWithOptions:0];
-}
-
 
 - (BOOL)encryptFile:(NSString *)fileName fileNameIdentifier:(NSString *)fileNameIdentifier directory:(NSString *)directory key:(NSString **)key initializationVector:(NSString **)initializationVector authenticationTag:(NSString **)authenticationTag
 {
@@ -587,7 +566,7 @@
 
 
 #
-#pragma mark - Asymmetric Encrypt/Decrypt String
+#pragma mark - Encrypt/Decrypt asymmetric
 #
 
 - (NSData *)encryptAsymmetricString:(NSString *)plain publicKey:(NSString *)publicKey privateKey:(NSString *)privateKey
@@ -842,7 +821,7 @@
     status = EVP_DecryptInit_ex(ctx, NULL, NULL, cKey, cIV);
     if (status <= 0)
         return NO;
-
+    
     // Provide the message to be decrypted, and obtain the plaintext output
     *plainData = [NSMutableData dataWithLength:([cipherData length])];
     int cPlainLen = 0;
@@ -869,6 +848,15 @@
 #pragma mark - Utility
 #
 
+- (void)Encodedkey:(NSString **)key initializationVector:(NSString **)initializationVector
+{
+    NSData *keyData = [self generateKey:AES_KEY_128_LENGTH];
+    NSData *ivData = [self generateIV:AES_IVEC_LENGTH];
+
+    *key = [keyData base64EncodedStringWithOptions:0];
+    *initializationVector = [ivData base64EncodedStringWithOptions:0];
+}
+
 - (NSString *)createSHA512:(NSString *)string
 {
     const char *cstr = [string cStringUsingEncoding:NSUTF8StringEncoding];
@@ -886,7 +874,7 @@
 {
     NSMutableData *ivData = [NSMutableData dataWithLength:length];
     (void)SecRandomCopyBytes(kSecRandomDefault, length, ivData.mutableBytes);
-    
+
     return ivData;
 }
 
@@ -904,7 +892,17 @@
     unsigned char *pKeyData = [keyData mutableBytes];
 
     RAND_bytes(pKeyData, length);
-    
+
+    return keyData;
+}
+
+- (NSData *)generateKey
+{
+    NSMutableData *keyData = [NSMutableData dataWithLength:AES_KEY_128_LENGTH];
+    unsigned char *pKeyData = [keyData mutableBytes];
+
+    RAND_bytes(pKeyData, AES_KEY_128_LENGTH);
+
     return keyData;
 }
 
@@ -957,90 +955,6 @@
     }
     
     return [NSString stringWithString:hexString];
-}
-
-/*
-- (NSData *)base64Encode:(NSData *)input
-{
-    void *bytes;
-
-    BIO *buffer = BIO_new(BIO_s_mem());
-    BIO *base64 = BIO_new(BIO_f_base64());
-    buffer = BIO_push(base64, buffer);
-    BIO_write(buffer, [input bytes], (int)[input length]);
-    
-    NSUInteger length = BIO_get_mem_data(buffer, &bytes);
-    NSString *string = [[NSString alloc] initWithBytes:bytes length:length encoding:NSUTF8StringEncoding];
-    
-    BIO_free_all(buffer);
-    
-    return [string dataUsingEncoding:NSUTF8StringEncoding];
-}
-*/
-
-- (NSString *)base64DecodeData:(NSData *)input
-{
-    NSMutableData *data = [NSMutableData data];
-
-    BIO *buffer = BIO_new_mem_buf((void *)[input bytes], (int)[input length]);
-    BIO *base64 = BIO_new(BIO_f_base64());
-    buffer = BIO_push(base64, buffer);
-    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
-    
-    char chars[input.length];
-    int length = BIO_read(buffer, chars, (int)sizeof(chars));
-    while (length > 0) {
-        [data appendBytes:chars length:length];
-        length = BIO_read(buffer, chars, (int)sizeof(chars));
-    }
-    
-    BIO_free_all(buffer);
-    
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-}
-
-- (NSData *)dataBase64DecodeData:(NSData *)input
-{
-    NSMutableData *data = [NSMutableData data];
-
-    BIO *buffer = BIO_new_mem_buf((void *)[input bytes], (int)[input length]);
-    BIO *base64 = BIO_new(BIO_f_base64());
-    buffer = BIO_push(base64, buffer);
-    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
-
-    char chars[input.length];
-    int length = BIO_read(buffer, chars, (int)sizeof(chars));
-    while (length > 0) {
-        [data appendBytes:chars length:length];
-        length = BIO_read(buffer, chars, (int)sizeof(chars));
-    }
-
-    BIO_free_all(buffer);
-
-    return data;
-}
-
-- (NSData *)base64DecodeString:(NSString *)input
-{
-    NSMutableData *data = [NSMutableData data];
-    
-    NSData *inputData = [input dataUsingEncoding:NSUTF8StringEncoding];
-
-    BIO *buffer = BIO_new_mem_buf((void *)[inputData bytes], (int)[inputData length]);
-    BIO *base64 = BIO_new(BIO_f_base64());
-    buffer = BIO_push(base64, buffer);
-    BIO_set_flags(base64, BIO_FLAGS_BASE64_NO_NL);
-    
-    char chars[input.length];
-    int length = BIO_read(buffer, chars, (int)sizeof(chars));
-    while (length > 0) {
-        [data appendBytes:chars length:length];
-        length = BIO_read(buffer, chars, (int)sizeof(chars));
-    }
-    
-    BIO_free_all(buffer);
-    
-    return data;
 }
 
 - (NSString *)derToPemPrivateKey:(NSString *)input
