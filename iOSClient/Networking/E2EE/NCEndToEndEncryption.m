@@ -495,9 +495,9 @@
 
     if (plainData != nil && result) {
         return plainData;
-    } else {
-        return nil;
     }
+
+    return nil;
 }
 
 #
