@@ -874,6 +874,39 @@
 }
 
 #
+#pragma mark - CMS
+#
+
+- (NSData *)decryptCMSData:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey
+{
+    unsigned char *pKey = (unsigned char *)[privateKey UTF8String];
+    unsigned char *certKey = (unsigned char *)[certificate UTF8String];
+    int status = 0;
+
+    BIO *certKeyBIO = BIO_new_mem_buf(certKey, -1);
+    if (!certKeyBIO)
+        return nil;
+
+    X509 *x509 = PEM_read_bio_X509(certKeyBIO, NULL, 0, NULL);
+    if (!x509)
+        return nil;
+
+    BIO *pkeyBIO = BIO_new_mem_buf(pKey, -1);
+    EVP_PKEY *key = PEM_read_bio_PrivateKey(pkeyBIO, NULL, NULL, NULL);
+    if (!key)
+        return nil;
+
+    BIO *dataBIO = BIO_new_mem_buf((void*)data.bytes, (int)data.length);
+    BIO *outputBIO = BIO_new(BIO_s_mem());
+    BIO *cont = NULL;
+
+    // [cipherData bytes], (int)[cipherData length]
+    status = CMS_decrypt(contentInfo, key, x509, cont, outputBIO, 0);
+
+    return nil;
+}
+
+#
 #pragma mark - Utility
 #
 

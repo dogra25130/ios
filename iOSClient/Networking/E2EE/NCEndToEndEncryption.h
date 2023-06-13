@@ -56,6 +56,10 @@
 - (BOOL)encryptFile:(NSString *)fileName fileNameIdentifier:(NSString *)fileNameIdentifier directory:(NSString *)directory key:(NSString **)key initializationVector:(NSString **)initializationVector authenticationTag:(NSString **)authenticationTag;
 - (BOOL)decryptFile:(NSString *)fileName fileNameView:(NSString *)fileNameView ocId:(NSString *)ocId key:(NSString *)key initializationVector:(NSString *)initializationVector authenticationTag:(NSString *)authenticationTag;
 
+// Encrypt / Decrypt CMS
+
+- (NSData *)decryptCMSData:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey;
+
 // Utility
 
 - (void)Encodedkey:(NSString **)key initializationVector:(NSString **)initializationVector;
