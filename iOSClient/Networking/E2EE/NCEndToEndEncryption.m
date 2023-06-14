@@ -877,7 +877,7 @@
 #pragma mark - CMS
 #
 
-- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey publicKey:(NSString *)publicKey
+- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey publicKey:(NSString *)publicKey userId:(NSString *)userId
 {
     unsigned char *pKey = (unsigned char *)[privateKey UTF8String];
     unsigned char *certKey = (unsigned char *)[certificate UTF8String];
@@ -916,7 +916,7 @@
     NSData *i2dCmsData = [NSData dataWithBytes:keyBytes length:len];
 
     // TEST
-    [self verifySignatureCMS:i2dCmsData data:data publicKey:publicKey];
+    [self verifySignatureCMS:i2dCmsData data:data publicKey:publicKey userId:userId];
 
     BIO_free(printBIO);
     BIO_free(certKeyBIO);
@@ -927,7 +927,7 @@
     return i2dCmsData;
 }
 
-- (BOOL)verifySignatureCMS:(NSData *)cmsContent data:(NSData *)data publicKey:(NSString *)publicKey
+- (BOOL)verifySignatureCMS:(NSData *)cmsContent data:(NSData *)data publicKey:(NSString *)publicKey userId:(NSString *)userId
 {
     BIO *dataBIO = BIO_new_mem_buf((void*)data.bytes, (int)data.length);
     BIO *printBIO = BIO_new_fp(stdout, BIO_NOCLOSE);
@@ -948,7 +948,7 @@
         STACK_OF(X509) *signers = CMS_get0_signers(contentInfo);
         int numSigners = sk_X509_num(signers);
 
-        for(int i = 0; i < numSigners; ++i) {
+        for (int i = 0; i < numSigners; ++i) {
 
             X509 *signer = sk_X509_value(signers, i);
             int result = X509_verify(signer, pkey);
@@ -962,7 +962,12 @@
             NSMutableData* cnData = [NSMutableData dataWithLength:cnDataLength];
             X509_NAME_get_text_by_NID(X509_get_subject_name(signer), NID_commonName, [cnData mutableBytes], cnDataLength);
             NSString *cn = [[NSString alloc] initWithCString:[cnData mutableBytes] encoding:NSUTF8StringEncoding];
-            NSLog(@"%@", cn);
+            if ([userId isEqualToString:cn]) {
+                verifyResult = true;
+                break;
+            } else {
+                verifyResult = false;
+            }
         }
 
         if (signers) {

@@ -58,8 +58,8 @@
 
 // Signature CMS
 
-- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey publicKey:(NSString *)publicKey;
-// - (NSData *)verifySignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey;
+- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey publicKey:(NSString *)publicKey userId:(NSString *)userId;
+- (BOOL)verifySignatureCMS:(NSData *)cmsContent data:(NSData *)data publicKey:(NSString *)publicKey userId:(NSString *)userId;
 
 // Utility
 
