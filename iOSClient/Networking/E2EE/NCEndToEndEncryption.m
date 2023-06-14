@@ -941,7 +941,6 @@
 
     CMS_ContentInfo_print_ctx(printBIO, contentInfo, 0, NULL);
 
-
     BOOL verifyResult = CMS_verify(contentInfo, NULL, NULL, dataBIO, NULL, CMS_DETACHED | CMS_NO_SIGNER_CERT_VERIFY);
 
     if (verifyResult) {
