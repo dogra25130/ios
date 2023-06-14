@@ -393,10 +393,10 @@ class NCEndToEndMetadata: NSObject {
             //
             let data = Data(base64Encoded: metadata.metadataKey)
 
-            /* TEST */
+            /* TEST CMS */
 
             if let cmsData = NCEndToEndEncryption.sharedManager().generateSignatureCMS(data, certificate: CCUtility.getEndToEndCertificate(account), privateKey: CCUtility.getEndToEndPrivateKey(account), publicKey: CCUtility.getEndToEndPublicKey(account)) {
-                let cms = String(data: cmsData, encoding: .utf8)
+                let cms = cmsData.base64EncodedString()
                 print(cms)
             }
 
