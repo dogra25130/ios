@@ -396,8 +396,12 @@ class NCEndToEndMetadata: NSObject {
             /* TEST CMS */
 
             if let cmsData = NCEndToEndEncryption.sharedManager().generateSignatureCMS(data, certificate: CCUtility.getEndToEndCertificate(account), privateKey: CCUtility.getEndToEndPrivateKey(account), publicKey: CCUtility.getEndToEndPublicKey(account), userId: userId) {
+                
                 let cms = cmsData.base64EncodedString()
                 print(cms)
+
+                let data = Data(base64Encoded: cms)
+                NCEndToEndEncryption.sharedManager().verifySignatureCMS(data, data: nil, publicKey: CCUtility.getEndToEndPublicKey(account), userId: userId)
             }
 
             if let decrypted = NCEndToEndEncryption.sharedManager().decryptAsymmetricData(data, privateKey: privateKey),
