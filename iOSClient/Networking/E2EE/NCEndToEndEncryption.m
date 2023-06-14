@@ -915,43 +915,69 @@
 
     NSData *i2dCmsData = [NSData dataWithBytes:keyBytes length:len];
 
+    // TEST
     [self verifySignatureCMS:i2dCmsData data:data publicKey:publicKey];
 
-    // BIO_free(i2dCmsBioOut);
+    BIO_free(printBIO);
+    BIO_free(certKeyBIO);
+    BIO_free(pkeyBIO);
+    BIO_free(dataBIO);
+    BIO_free(i2dCmsBioOut);
 
     return i2dCmsData;
 }
 
 - (BOOL)verifySignatureCMS:(NSData *)cmsContent data:(NSData *)data publicKey:(NSString *)publicKey
 {
+    BIO *dataBIO = BIO_new_mem_buf((void*)data.bytes, (int)data.length);
     BIO *printBIO = BIO_new_fp(stdout, BIO_NOCLOSE);
-
     BIO *cmsBIO = BIO_new_mem_buf(cmsContent.bytes, (int)cmsContent.length);
+
     CMS_ContentInfo *contentInfo = d2i_CMS_bio(cmsBIO, NULL);
 
-    unsigned char *pKey = (unsigned char *)[publicKey UTF8String];
-    BIO *bio = BIO_new_mem_buf(pKey, -1);
-    EVP_PKEY *key = PEM_read_bio_PUBKEY(bio, NULL, NULL, NULL);
+    unsigned char *publicKeyUTF8 = (unsigned char *)[publicKey UTF8String];
+    BIO *publicKeyBIO = BIO_new_mem_buf(publicKeyUTF8, -1);
+    EVP_PKEY *pkey = PEM_read_bio_PUBKEY(publicKeyBIO, NULL, NULL, NULL);
 
     CMS_ContentInfo_print_ctx(printBIO, contentInfo, 0, NULL);
 
-    BIO *dataBIO = BIO_new_mem_buf((void*)data.bytes, (int)data.length);
 
-    if (CMS_verify(contentInfo, NULL, NULL, dataBIO, NULL, CMS_DETACHED | CMS_NO_SIGNER_CERT_VERIFY) == 1) {
+    BOOL verifyResult = CMS_verify(contentInfo, NULL, NULL, dataBIO, NULL, CMS_DETACHED | CMS_NO_SIGNER_CERT_VERIFY);
 
-        STACK_OF(X509) *x509ContentInfo = CMS_get0_signers(contentInfo);
-        int numSigners = sk_X509_num(x509ContentInfo);
+    if (verifyResult) {
+
+        STACK_OF(X509) *signers = CMS_get0_signers(contentInfo);
+        int numSigners = sk_X509_num(signers);
 
         for(int i = 0; i < numSigners; ++i) {
-            X509 *signer = sk_X509_value(x509ContentInfo, i);
-            int result = X509_verify(signer, key);
-            if (result <= 0)
-                return false;
+
+            X509 *signer = sk_X509_value(signers, i);
+            int result = X509_verify(signer, pkey);
+            if (result <= 0) {
+                verifyResult = false;
+                break;
+            }
+
+            int cnDataLength = X509_NAME_get_text_by_NID(X509_get_subject_name(signer), NID_commonName, 0, 0);
+            cnDataLength += 1;
+            NSMutableData* cnData = [NSMutableData dataWithLength:cnDataLength];
+            X509_NAME_get_text_by_NID(X509_get_subject_name(signer), NID_commonName, [cnData mutableBytes], cnDataLength);
+            NSString *cn = [[NSString alloc] initWithCString:[cnData mutableBytes] encoding:NSUTF8StringEncoding];
+            NSLog(@"%@", cn);
         }
-        NSLog(@"Ciao");
+
+        if (signers) {
+            sk_X509_free(signers);
+        }
+        signers = NULL;
     }
 
-    return true;
+    BIO_free(dataBIO);
+    BIO_free(printBIO);
+    BIO_free(cmsBIO);
+    BIO_free(publicKeyBIO);
+
+    return verifyResult;
 }
 
 #
