@@ -901,6 +901,22 @@
     if (contentInfo == nil)
         return nil;
 
+    BIO *cmsOut = BIO_new_fp(stdout, BIO_NOCLOSE);
+    CMS_ContentInfo_print_ctx(cmsOut, contentInfo, 0, NULL);
+
+    BIO *cmsOut2 = BIO_new_fp(stdout, BIO_NOCLOSE);
+    PEM_write_bio_CMS(cmsOut2, contentInfo);
+
+    BIO *i2dCmsBioOut = BIO_new(BIO_s_mem());
+    int status = i2d_CMS_bio(i2dCmsBioOut, contentInfo);
+    if (status <= 0)
+        return nil;
+
+    BUF_MEM *bptr = NULL;
+    BIO_get_mem_ptr(i2dCmsBioOut, &bptr);
+    NSData *i2dCmsData = [NSData dataWithBytes:bptr->data length:bptr->length];
+
+    return i2dCmsData;
 }
 
 - (NSData *)verifySignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey
