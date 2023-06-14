@@ -877,10 +877,11 @@
 #pragma mark - CMS
 #
 
-- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey
+- (NSData *)generateSignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey publicKey:(NSString *)publicKey
 {
     unsigned char *pKey = (unsigned char *)[privateKey UTF8String];
     unsigned char *certKey = (unsigned char *)[certificate UTF8String];
+    BIO *printBIO = BIO_new_fp(stdout, BIO_NOCLOSE);
 
     BIO *certKeyBIO = BIO_new_mem_buf(certKey, -1);
     if (!certKeyBIO)
@@ -901,56 +902,56 @@
     if (contentInfo == nil)
         return nil;
 
-    BIO *cmsOut = BIO_new_fp(stdout, BIO_NOCLOSE);
-    CMS_ContentInfo_print_ctx(cmsOut, contentInfo, 0, NULL);
-
-    BIO *cmsOut2 = BIO_new_fp(stdout, BIO_NOCLOSE);
-    PEM_write_bio_CMS(cmsOut2, contentInfo);
+    CMS_ContentInfo_print_ctx(printBIO, contentInfo, 0, NULL);
+    PEM_write_bio_CMS(printBIO, contentInfo);
 
     BIO *i2dCmsBioOut = BIO_new(BIO_s_mem());
-    int status = i2d_CMS_bio(i2dCmsBioOut, contentInfo);
-    if (status <= 0)
+    if (i2d_CMS_bio(i2dCmsBioOut, contentInfo) != 1)
         return nil;
 
-    BUF_MEM *bptr = NULL;
-    BIO_get_mem_ptr(i2dCmsBioOut, &bptr);
-    NSData *i2dCmsData = [NSData dataWithBytes:bptr->data length:bptr->length];
+    int len = BIO_pending(i2dCmsBioOut);
+    char *keyBytes = malloc(len);
+    BIO_read(i2dCmsBioOut, keyBytes, len);
+
+    NSData *i2dCmsData = [NSData dataWithBytes:keyBytes length:len];
+
+    [self verifySignatureCMS:i2dCmsData data:data publicKey:publicKey];
+
+    // BIO_free(i2dCmsBioOut);
 
     return i2dCmsData;
 }
 
-- (NSData *)verifySignatureCMS:(NSData *)data certificate:(NSString *)certificate privateKey:(NSString *)privateKey
+- (BOOL)verifySignatureCMS:(NSData *)cmsContent data:(NSData *)data publicKey:(NSString *)publicKey
 {
-    unsigned char *pKey = (unsigned char *)[privateKey UTF8String];
-    unsigned char *certKey = (unsigned char *)[certificate UTF8String];
-    int status = 0;
+    BIO *printBIO = BIO_new_fp(stdout, BIO_NOCLOSE);
 
-    BIO *certKeyBIO = BIO_new_mem_buf(certKey, -1);
-    if (!certKeyBIO)
-        return nil;
+    BIO *cmsBIO = BIO_new_mem_buf(cmsContent.bytes, (int)cmsContent.length);
+    CMS_ContentInfo *contentInfo = d2i_CMS_bio(cmsBIO, NULL);
 
-    X509 *x509 = PEM_read_bio_X509(certKeyBIO, NULL, 0, NULL);
-    if (!x509)
-        return nil;
+    unsigned char *pKey = (unsigned char *)[publicKey UTF8String];
+    BIO *bio = BIO_new_mem_buf(pKey, -1);
+    EVP_PKEY *key = PEM_read_bio_PUBKEY(bio, NULL, NULL, NULL);
 
-    BIO *pkeyBIO = BIO_new_mem_buf(pKey, -1);
-    EVP_PKEY *key = PEM_read_bio_PrivateKey(pkeyBIO, NULL, NULL, NULL);
-    if (!key)
-        return nil;
-
-
-    BIO *cmsBIO = BIO_new_mem_buf(data.bytes, (int)data.length);
-    CMS_ContentInfo *cms = d2i_CMS_bio(cmsBIO, NULL);
+    CMS_ContentInfo_print_ctx(printBIO, contentInfo, 0, NULL);
 
     BIO *dataBIO = BIO_new_mem_buf((void*)data.bytes, (int)data.length);
-    BIO *outputBIO = BIO_new(BIO_s_mem());
-    BIO *cont = NULL;
 
-    //status = CMS_decrypt(cms, key, x509, cont, outputBIO, 0);
+    if (CMS_verify(contentInfo, NULL, NULL, dataBIO, NULL, CMS_DETACHED | CMS_NO_SIGNER_CERT_VERIFY) == 1) {
 
-    //status = CMS_verify(cms, NULL, NULL, <#BIO *dcont#>, NULL, CMS_DETACHED | CMS_NO_SIGNER_CERT_VERIFY)
+        STACK_OF(X509) *x509ContentInfo = CMS_get0_signers(contentInfo);
+        int numSigners = sk_X509_num(x509ContentInfo);
 
-    return nil;
+        for(int i = 0; i < numSigners; ++i) {
+            X509 *signer = sk_X509_value(x509ContentInfo, i);
+            int result = X509_verify(signer, key);
+            if (result <= 0)
+                return false;
+        }
+        NSLog(@"Ciao");
+    }
+
+    return true;
 }
 
 #
