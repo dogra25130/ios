@@ -548,7 +548,6 @@
 		F7AE00FA230E81EB007ACF8A /* NCBrowserWeb.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F7AE00F9230E81EB007ACF8A /* NCBrowserWeb.storyboard */; };
 		F7B6B70427C4E7FA00A7F6EB /* NCScan+CollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B6B70327C4E7FA00A7F6EB /* NCScan+CollectionView.swift */; };
 		F7B7504B2397D38F004E13EC /* UIImage+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B7504A2397D38E004E13EC /* UIImage+Extension.swift */; };
-		F7B8B83025681C3400967775 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = F7B8B82F25681C3400967775 /* GoogleService-Info.plist */; };
 		F7B8CD91261AF3F7007C1359 /* NCNetworkingChunkedUpload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B8CD90261AF3F7007C1359 /* NCNetworkingChunkedUpload.swift */; };
 		F7B8CD96261AF401007C1359 /* NCNetworkingChunkedUpload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B8CD90261AF3F7007C1359 /* NCNetworkingChunkedUpload.swift */; };
 		F7B8CD9B261AF401007C1359 /* NCNetworkingChunkedUpload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7B8CD90261AF3F7007C1359 /* NCNetworkingChunkedUpload.swift */; };
@@ -753,6 +752,7 @@
 		08EA97451E6554FC004C83FA /* FirebaseCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseCore.framework; sourceTree = "<group>"; };
 		08EA97461E6554FC004C83FA /* FirebaseInstanceID.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = FirebaseInstanceID.framework; sourceTree = "<group>"; };
 		08EA97471E6554FC004C83FA /* GoogleToolboxForMac.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleToolboxForMac.framework; sourceTree = "<group>"; };
+		144F864D2A64356300059BEE /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2C33C47F23E2C475005F963B /* Notification Service Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "Notification Service Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C33C48123E2C475005F963B /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		2C33C48A23E2CC26005F963B /* Notification_Service_Extension-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Notification_Service_Extension-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -1191,7 +1191,6 @@
 		F7B1A7761EBB3C8000BFB6D1 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Localizable.strings; sourceTree = "<group>"; };
 		F7B6B70327C4E7FA00A7F6EB /* NCScan+CollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NCScan+CollectionView.swift"; sourceTree = "<group>"; };
 		F7B7504A2397D38E004E13EC /* UIImage+Extension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Extension.swift"; sourceTree = "<group>"; };
-		F7B8B82F25681C3400967775 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = "GoogleService-Info.plist"; sourceTree = SOURCE_ROOT; };
 		F7B8CD90261AF3F7007C1359 /* NCNetworkingChunkedUpload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NCNetworkingChunkedUpload.swift; sourceTree = "<group>"; };
 		F7BAADB41ED5A87C00B7EAD4 /* NCDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCDatabase.swift; sourceTree = "<group>"; };
 		F7BAADB51ED5A87C00B7EAD4 /* NCManageDatabase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NCManageDatabase.swift; sourceTree = "<group>"; };
@@ -2345,8 +2344,8 @@
 		F7F67B9F1A24D27800EE80DA = {
 			isa = PBXGroup;
 			children = (
+				144F864D2A64356300059BEE /* GoogleService-Info.plist */,
 				F30A96302A27AEBF00D7BCFE /* EnvVars.generated.swift */,
-				F7B8B82F25681C3400967775 /* GoogleService-Info.plist */,
 				F7C1CDD91E6DFC6F005D92BE /* Brand */,
 				F7F67BAA1A24D27800EE80DA /* iOSClient */,
 				F7F67BAB1A24D27800EE80DA /* Supporting Files */,
@@ -3133,7 +3132,6 @@
 				F7A48415297028FC00BD1B49 /* Nextcloud Hub.png in Resources */,
 				F74C0437253F1CDC009762AB /* NCShares.storyboard in Resources */,
 				F7F4F10C27ECDBDB008676F9 /* Inconsolata-Regular.ttf in Resources */,
-				F7B8B83025681C3400967775 /* GoogleService-Info.plist in Resources */,
 				F7381EE5218218C9000B1560 /* NCOffline.storyboard in Resources */,
 				F7E0CDCF265CE8610044854E /* NCUserStatus.storyboard in Resources */,
 				F76D3CF32428B94E005DFA87 /* NCViewerPDFSearchCell.xib in Resources */,

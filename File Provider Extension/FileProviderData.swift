@@ -61,7 +61,6 @@ class fileProviderData: NSObject {
     }
 
     // MARK: - 
-
     func setupAccount(domain: NSFileProviderDomain?, providerExtension: NSFileProviderExtension) -> tableAccount? {
 
         self.domain = domain
